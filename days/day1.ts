@@ -1,29 +1,31 @@
-import { readLines } from "../utils";
+import { mod, readLines } from "../utils";
 
-const input = await readLines("input1.txt");
+const puzzleInput = await readLines("example1.txt");
 
-function run() {
-  let cur = 50;
+function run(input: string[], cur = 50) {
   let zeroCount = 0;
+  let zeroClickCount = 0;
 
   for (let line of input) {
     const direction = line.slice(0, 1);
-    const distance = parseInt(line.slice(1)) % 100;
+    const distance = parseInt(line.slice(1));
 
-    if (direction == "L") {
-      cur -= distance;
+    switch (direction) {
+      case "L":
+        const locL = cur - distance;
 
-      if (cur < 0) {
-        cur += 100;
-      }
-    } else if (direction == "R") {
-      cur += distance;
+        const actual = Math.abs(cur > 0 ? locL - 100 : locL);
+        zeroClickCount += Math.floor(actual / 100);
+        cur = mod(locL, 100);
 
-      if (cur > 99) {
-        cur -= 100;
-      }
-    } else {
-      throw new Error("Direction out of bounds");
+        break;
+      case "R":
+        const locR = cur + distance;
+        zeroClickCount += Math.floor(locR / 100);
+        cur = locR % 100;
+        break;
+      default:
+        throw new Error("out of bounds");
     }
 
     if (cur === 0) {
@@ -31,8 +33,8 @@ function run() {
     }
   }
 
-  return zeroCount;
+  return [zeroCount, zeroClickCount, cur];
 }
 
-const zeroCount = run();
+const zeroCount = run(puzzleInput);
 console.log(zeroCount);
