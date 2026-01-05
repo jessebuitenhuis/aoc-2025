@@ -1,4 +1,4 @@
-import { readInput, readLines } from "../utils";
+import { countIf, orderBy, readInput, readLines } from "../utils";
 
 await solveA("example5");
 await solveA("input5");
@@ -7,49 +7,29 @@ await solveB("input5");
 
 async function solveA(path: string) {
   const { ranges, ingredients } = await readPuzzleInput(path);
-
-  let count = 0;
-
-  for (let ingredient of ingredients) {
-    if (isFresh(ingredient, ranges)) count++;
-  }
-
+  const count = countIf(ingredients, (x) => isFresh(x, ranges));
   console.log(count);
-  return count;
 }
 
 type Range = [start: number, end: number];
 
 async function solveB(path: string) {
-  const { ranges, ingredients } = await readPuzzleInput(path);
+  const { ranges } = await readPuzzleInput(path);
 
-  const sortedRanges = ranges.sort(([aStart], [bStart]) => aStart - bStart);
+  const sortedRanges = orderBy(ranges, ([start]) => start);
   let count = 0;
+  let max = 0;
 
-  for (let i = 0; i < sortedRanges.length; i++) {
-    const current = sortedRanges[i];
-    const size = Math.max(0, current[1] - current[0] + 1);
-    count += size;
-    const rest = sortedRanges.slice(i + 1);
-    moveOverlappingRanges(current, rest);
-  }
-
-  console.log(sortedRanges);
-  console.log(count);
-}
-
-function moveOverlappingRanges(range: Range, ranges: Range[]): void {
-  for (let other of ranges) {
-    if (isOverlapping(range, other)) {
-      other[0] = range[1] + 1;
-    } else {
-      break;
+  for (let [start, end] of sortedRanges) {
+    start = Math.max(start, max + 1);
+    if (end > max) {
+      const size = Math.max(0, end - start + 1);
+      count += size;
+      max = end;
     }
   }
-}
 
-function isOverlapping([aStart, aEnd]: Range, [bStart, bEnd]: Range): boolean {
-  return bStart >= aStart && bStart <= aEnd;
+  console.log(count);
 }
 
 function isFresh(id: number, ranges: Range[]) {

@@ -20,6 +20,14 @@ export function sum(input: number[]) {
   return input.reduce((total, cur) => total + cur, 0);
 }
 
+export function countIf<T>(input: T[], predicate: (x: T) => boolean) {
+  return input.reduce((total, cur) => total + (predicate(cur) ? 1 : 0), 0);
+}
+
+export function orderBy<T>(list: T[], predicate: (x: T) => number) {
+  return [...list].sort((a, b) => predicate(a) - predicate(b));
+}
+
 function ensureExtension(path: string): string {
   if (path.indexOf(".") < 0) return `${path}.txt`;
   return path;
