@@ -1,24 +1,49 @@
-import { readLines, Grid } from "../utils";
+import { readLines, Grid, Coord } from "../utils";
 
 const example = await readLines("example4");
 const input = await readLines("input4");
 solveA(example);
 solveA(input);
+solveB(example);
+solveB(input);
 
 function solveA(input: string[]) {
   const grid = new Grid(input);
   let count = 0;
 
-  for (let { x, y, value } of grid.entries()) {
-    if (value !== "@") continue;
-    if (isAccessible(grid, x, y)) count++;
+  for (let entry of grid.entries()) {
+    if (entry.value !== "@") continue;
+    if (isAccessible(grid, entry)) count++;
   }
 
   console.log(count);
   return count;
 }
 
-function isAccessible(grid: Grid, x: number, y: number): boolean {
+function solveB(input: string[]) {
+  const grid = new Grid(input);
+  let totalRemoved = 0;
+
+  while (true) {
+    let removedCount = 0;
+
+    for (let entry of grid.entries()) {
+      if (entry.value !== "@") continue;
+      if (isAccessible(grid, entry)) {
+        removedCount++;
+        grid.setValue(entry, "x");
+      }
+    }
+
+    if (removedCount === 0) break;
+    totalRemoved += removedCount;
+  }
+
+  console.log(totalRemoved);
+  return totalRemoved;
+}
+
+function isAccessible(grid: Grid, { x, y }: Coord): boolean {
   let count = 0;
 
   for (let { value } of grid.adjacentEntries({ x, y })) {

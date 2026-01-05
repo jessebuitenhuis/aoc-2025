@@ -1,13 +1,21 @@
 export class Grid {
+  private _values: string[][];
+
   get width() {
-    return this._input[0].length;
+    return this._values[0].length;
   }
 
   get height() {
-    return this._input.length;
+    return this._values.length;
   }
 
-  constructor(private _input: string[]) {}
+  constructor(input: string[]) {
+    this._values = input.map((x) => x.split(""));
+  }
+
+  setValue({ x, y }: Coord, value: string) {
+    this._values[y][x] = value;
+  }
 
   *entries() {
     for (let entry of this._entriesInRange(0, this.width, 0, this.height)) {
@@ -53,7 +61,7 @@ export class Grid {
 
   getValue(x: number, y: number): string {
     try {
-      return this._input[y][x];
+      return this._values[y][x];
     } catch (e) {
       throw new Error(`Error at ${x}, ${y}`);
     }
@@ -64,5 +72,5 @@ export class Grid {
   }
 }
 
-type Coord = { x: number; y: number };
+export type Coord = { x: number; y: number };
 type GridValue = Coord & { value: string };
