@@ -30,9 +30,8 @@ function solveA(input: string[]) {
 }
 
 function solveB(input: string[]) {
-  const cache = new Map<string, number>();
   const x = input[0].indexOf("S");
-  const timelines = countTimelines(input, x, 1, cache);
+  const timelines = countTimelines(input, x, 1);
   console.log(timelines);
   return timelines;
 }
@@ -41,9 +40,10 @@ function countTimelines(
   grid: string[],
   x: number,
   y: number,
-  cache: Map<string, number>,
+  cache = new TimelineCache(),
 ): number {
-  const cached = cache.get(`${x}-${y}`);
+  const coord = { x, y };
+  const cached = cache.get(coord);
   if (cached) return cached;
 
   const value = grid[y]?.[x];
@@ -53,15 +53,31 @@ function countTimelines(
     const timelinesA = countTimelines(grid, x - 1, y + 1, cache);
     const timelinesB = countTimelines(grid, x + 1, y + 1, cache);
     const result = timelinesA + timelinesB;
-    cache.set(`${x}-${y}`, result);
+    cache.set(coord, result);
     return result;
   }
 
   const result = countTimelines(grid, x, y + 1, cache);
-  cache.set(`${x}-${y}`, result);
+  cache.set(coord, result);
   return result;
 }
 
 function isSplitter(char: string) {
   return char === "^";
+}
+
+class TimelineCache {
+  private _cache = new Map<string, number>();
+
+  get(coord: Coord): number | undefined {
+    return this._cache.get(this._getKey(coord));
+  }
+
+  set(coord: Coord, value: number) {
+    return this._cache.set(this._getKey(coord), value);
+  }
+
+  private _getKey({ x, y }: Coord): string {
+    return `${x}-${y};`;
+  }
 }
