@@ -67,3 +67,23 @@ function ensureExtension(path: string): string {
   if (path.indexOf(".") < 0) return `${path}.txt`;
   return path;
 }
+
+export function euclidianDistance(a: number[], b: number[]) {
+  if (a.length !== b.length) {
+    throw new Error(
+      "Points should be described in the same dimensional space.",
+    );
+  }
+
+  return Math.sqrt(
+    a.reduce((acc, cur, index) => acc + Math.pow(cur - b[index], 2), 0),
+  );
+}
+
+export function* getAllCombinations<T>(list: T[]) {
+  for (let a = 0; a < list.length - 1; a++) {
+    for (let b = a + 1; b < list.length; b++) {
+      yield [list[a], list[b]] as [T, T];
+    }
+  }
+}
