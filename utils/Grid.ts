@@ -73,4 +73,5 @@ export class Grid {
 }
 
 export type Coord = { x: number; y: number };
+export type CoordArr = [x: number, y: number];
 type GridValue = Coord & { value: string };

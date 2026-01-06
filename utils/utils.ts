@@ -23,8 +23,8 @@ export function toNumber(input: string): number {
   return parseInt(input, 10);
 }
 
-export function toNumbers(input: string): number[] {
-  return input.split("").map((x) => parseInt(x, 10));
+export function toNumbers(input: string, separator?: string): number[] {
+  return input.split(separator || "").map(toNumber);
 }
 
 export function sum(input: number[]) {
