@@ -59,8 +59,17 @@ export function countIf<T>(input: T[], predicate: (x: T) => boolean) {
   return input.reduce((total, cur) => total + (predicate(cur) ? 1 : 0), 0);
 }
 
-export function orderBy<T>(list: T[], predicate: (x: T) => number) {
-  return [...list].sort((a, b) => predicate(a) - predicate(b));
+export function orderBy<T>(
+  list: T[],
+  predicate: (x: T) => number,
+  reverse = false,
+) {
+  return [...list].sort((a, b) => {
+    const _a = predicate(a);
+    const _b = predicate(b);
+
+    return reverse ? _b - _a : _a - _b;
+  });
 }
 
 function ensureExtension(path: string): string {
@@ -85,5 +94,13 @@ export function* getAllCombinations<T>(list: T[]) {
     for (let b = a + 1; b < list.length; b++) {
       yield [list[a], list[b]] as [T, T];
     }
+  }
+}
+
+export function* pairwise<T>(arr: T[], wrap = false) {
+  const length = wrap ? arr.length : arr.length - 1;
+  for (let i = 0; i < length; i++) {
+    const next = (i + 1) % arr.length;
+    yield [arr[i], arr[next]] as [T, T];
   }
 }
