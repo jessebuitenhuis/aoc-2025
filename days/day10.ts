@@ -1,4 +1,4 @@
-import { readAllLines, sum, toNumber, toNumbers } from "../utils";
+import { last, readAllLines, sum, toNumber, toNumbers } from "../utils";
 
 const { example, input } = await readAllLines(10);
 
@@ -14,100 +14,69 @@ function solveA(inp: string[]) {
   console.log(result);
 }
 
-function getMiniumRequiredPresses(target: string, buttons: number[][]): number {
-  const targetIndices = indexesOf(target, "#");
-  const buttonsInScope = buttons.filter(
-    (button) =>
-      button.find((key) => targetIndices.indexOf(key) > -1) !== undefined,
-  );
-
+function getMiniumRequiredPresses(target: number, buttons: number[]): number {
   let count = 0;
-  const initialState = new Array(target.length + 1).join(".");
-  let states: string[] = [initialState];
+  const states = new Set<number>([0]);
+  const seen = new Set<number>();
 
   while (true) {
-    const newStates: string[] = [];
+    const curStates = [...states];
+    states.clear();
 
-    for (const { state, button, newState } of applyButtons(
-      states,
-      buttons,
-      count,
-    )) {
-      if (newState === target) {
-        console.log({ state, button, newState });
-        return count + 1;
+    for (const state of applyButtons(curStates, buttons)) {
+      if (state === target) return count + 1;
+      if (seen.has(state)) {
+        continue;
       }
-
-      newStates.push(newState);
+      states.add(state);
+      seen.add(state);
     }
-
-    states = newStates;
 
     count++;
   }
 }
 
-function* applyButtons(states: string[], buttons: number[][], count: number) {
+function* applyButtons(states: number[], buttons: number[]) {
   for (const state of states) {
     for (const button of buttons) {
-      const newState = applyButton(state, button);
-      // console.log(state, button, newState, count);
-      yield { state, button, newState };
+      const newState = state ^ button;
+      yield newState;
     }
   }
 }
-
-function applyButton(state: string, button: number[]) {
-  let output = "";
-
-  for (let i = 0; i < state.length; i++) {
-    const cur = state[i];
-    if (button.indexOf(i) < 0) {
-      output += cur;
-    } else {
-      output += cur === "#" ? "." : "#";
-    }
-  }
-
-  return output;
-}
-
-// function buttonLoop(
-//   states: string[],
-//   target: string[],
-//   buttons: number[][],
-// ): string[] {
-//   for (const state in states) {
-//   }
-// }
-
-// function pressButton(target: string, buttons: number[][], state: string) {}
 
 function parseInput(inp: string[]) {
   return inp.map((line) => {
-    const indicator = line.match(/\[([^\]]+)\]/)![1];
-    const buttons = [...line.matchAll(/\(([^)]+)\)/g)].map((m) =>
-      m[1].split(",").map(toNumber),
-    );
+    const indicator = line
+      .match(/\[([^\]]+)\]/)![1]
+      .replace(/\./g, "0")
+      .replace(/#/g, "1");
+
+    const buttons = parseButtons(line, indicator.length);
     const joltage = line
       .match(/\{([^}]+)\}/)![1]
       .split(",")
       .map(toNumber);
 
     return {
-      indicator,
+      indicator: parseInt(indicator, 2),
       buttons,
       joltage,
     };
   });
 }
 
-function indexesOf(input: string, search: string): number[] {
-  const output: number[] = [];
+function parseButtons(line: string, length: number) {
+  return [...line.matchAll(/\(([^)]+)\)/g)].map((m) => {
+    const indices = m[1].split(",").map(toNumber);
 
-  for (let i = 0; i < input.length; i++) {
-    if (input[i] === search) output.push(i);
-  }
+    const buttonString = new Array(length)
+      .fill("")
+      .map((x, i) => {
+        return indices.indexOf(i) > -1 ? "1" : "0";
+      })
+      .join("");
 
-  return output;
+    return parseInt(buttonString, 2);
+  });
 }

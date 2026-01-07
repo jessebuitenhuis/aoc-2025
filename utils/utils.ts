@@ -104,3 +104,7 @@ export function* pairwise<T>(arr: T[], wrap = false) {
     yield [arr[i], arr[next]] as [T, T];
   }
 }
+
+export function last<T>(arr: T[]): T {
+  return arr[arr.length - 1];
+}
